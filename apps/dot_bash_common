@@ -1,0 +1,115 @@
+# -*-Sh-*-
+
+export PYTHONPATH=$PYTHONPATH:~/pylib
+DIR=$(dirname $(readlink -e ${BASH_SOURCE[0]}))
+export PATH=$DIR/bin:.:~/.local/bin:~/bin:$PATH
+export XENVIRONMENT=~/.Xresources
+
+if [ -n "$TMUX" ]; then
+    export TERM=screen-256color
+else
+    export TERM=xterm-256color
+fi
+
+
+# prompt color and style
+export PS1="\[\e[1;32m\]\u@\[\e[${SERVER_COLOR}m\]\h\[\e[1;34m\] \w \$\[\e[m\] "
+
+export HISTFILESIZE=10000
+#export PROMPT_COMMAND="history 1 | record_command.py -p"
+
+#Make handling the DISPLAY variable a bit easier with screen.
+# if ps -ocommand= -p $PPID | grep --quiet SCREEN; then
+#     source ~/.DISPLAY.sh
+# else
+#     alias screen="echo 'export DISPLAY=$DISPLAY' > ~/.DISPLAY.sh; screen"
+# fi
+PARENT=`ps -ocommand= -p $PPID | sed 's/:.*//'`
+if [ "$PARENT" = "SCREEN" ]; then
+    source ~/.DISPLAY.sh
+elif [ "$PARENT" = "sshd" ]; then
+    alias screen="echo 'export DISPLAY=$DISPLAY' > ~/.DISPLAY.sh; screen"
+    #    echo "export DISPLAY=$DISPLAY" > ~/.DISPLAY.sh
+elif [ "$PARENT" = "emacs" ]; then
+    alias screen="echo 'export DISPLAY=$DISPLAY' > ~/.DISPLAY.sh; screen"
+    #    echo "export DISPLAY=$DISPLAY" > ~/.DISPLAY.sh
+fi
+alias dis='source ~/.DISPLAY.sh'
+
+#Same thing, but for tmux.  Much more pleasant to work with.
+#alias dis='export $(tmux showenv | grep DISPLAY)'
+
+# ls colors
+#eval $(dircolors ~/.dir_colors)
+export CLICOLOR=1
+export LSCOLORS=$LS_COLORS
+export LSCOLORS=gxBxhxDxfxhxhxhxhxcxcx # override
+
+#alias emacs="emacs -nw"
+alias es="emacs --daemon"
+alias ec="emacsclient -a '' -c"
+alias en="emacsclient -a '' -n"
+export EDITOR="emacsclient -a '' -c -nw"
+alias emacs="ec"
+
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+alias ls='ls -F'
+alias ll='ls -lh'
+alias lh='ls -ltrh'
+alias lll='ll -a'
+alias duh='du -d 1 -h --exclude "./snapshot"'
+
+
+alias grab_makefile='wget https://raw.githubusercontent.com/Lunderberg/magic_cpp_makefile/master/Makefile'
+
+export LESS="--no-init --quit-if-one-screen --raw-control-chars"
+alias more="less"
+
+alias root='root -l'
+alias grep='grep --color=auto'
+#alias py='ipython'
+#alias py3='ipython3'
+#alias pyx='xterm -e ipython3 &'
+alias vnc='x11vnc -usepw -display :0 --forever'
+alias lynx='lynx --accept-all-cookies'
+alias ssh='ssh -Y'
+alias scons='scons -u'
+alias psgrep='ps aux | grep'
+alias fscp='rsync -avz -e ssh'
+alias cd..="cd .."
+
+function addpath() {
+    if [ $# -ge 1 ]; then
+        export PATH=$1:$PATH
+    else
+        export PATH=`pwd`:$PATH
+    fi
+}
+
+#Stop ^S from freezing the screen until ^Q is given.
+stty -ixon 2> /dev/null
+
+function show(){
+    string=$(eval echo \$$1)
+    old=$IFS
+    IFS=:
+    printf "%s\n" $string
+    IFS=$old
+}
+
+#Things not in the github repo
+if [ -f ~/.bash_private ]; then
+    source ~/.bash_private
+fi
+
+command_not_found_handle() {
+    if [ -x /usr/lib/command-not-found ]; then
+        /usr/lib/command-not-found -- "$1"
+        return $?
+    else
+        echo "Unknown command: $1"
+        return 127
+    fi
+}

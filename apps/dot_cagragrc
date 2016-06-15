@@ -1,0 +1,10 @@
+alias lh='ls -ltrh'
+alias gitstatus='git status -uno'
+alias ec="emacsclient -a '' -c"
+alias en="emacsclient -a '' -n"
+export EDITOR="emacsclient -a '' -c -nw""''"
+export TERM="xterm-256color"
+source ~/apps/GRUT.sh
+source ~/apps/dot_bash_common
+alias ls='ls --color'
+ulimit -c 0
